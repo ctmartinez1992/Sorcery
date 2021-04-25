@@ -2,22 +2,30 @@
 
 #include "BasicRenderer.h"
 #include "cstr.h"
+#include "EFIMemory.h"
 
-extern "C" void _start(FrameBuffer* framebuffer, PSF1_FONT* psf1_font) {
-    BasicRenderer newRenderer = BasicRenderer(framebuffer, psf1_font);
-    newRenderer.Print(to_string((uint64_t)1234976));
-    newRenderer.CursorPosition = {0, 16};
-    newRenderer.Print(to_string((int64_t)-1234976));
-    newRenderer.CursorPosition = {0, 32};
-    newRenderer.Print(to_string((double)-3.141351));
-    newRenderer.CursorPosition = {0, 48};
-    newRenderer.Print(to_hstring((uint64_t)0xF0));
-    newRenderer.CursorPosition = {0, 64};
-    newRenderer.Print(to_hstring((uint32_t)0xF0));
-    newRenderer.CursorPosition = {0, 80};
-    newRenderer.Print(to_hstring((uint16_t)0xF0));
-    newRenderer.CursorPosition = {0, 96};
-    newRenderer.Print(to_hstring((uint8_t)0xF0));
+typedef struct
+{
+    Framebuffer *framebuffer;
+    PSF1_FONT *psf1_font;
+    void *mMap; // EFI_MEMORY_DESCRIPTOR
+    uint64_t mMapSize;
+    uint64_t mMapDescriptorSize;
+} BootInfo;
+
+extern "C" void _start(BootInfo *bootInfo)
+{
+    BasicRenderer newRenderer = BasicRenderer(bootInfo->framebuffer, bootInfo->psf1_font);
+
+    newRenderer.CursorPosition = {0, newRenderer.CursorPosition.y + 16};
+
+    uint64_t mMapEntries = bootInfo->mMapSize / bootInfo->mMapDescriptorSize;
+    for (int i = 0; i < mMapEntries; i++)
+    {
+        EFI_MEMORY_DESCRIPTOR *descriptor = (EFI_MEMORY_DESCRIPTOR *)((uint64_t)bootInfo->mMap + (i * bootInfo->mMapDescriptorSize));
+        newRenderer.CursorPosition = {0, newRenderer.CursorPosition.y + 16};
+        newRenderer.Print(EFI_MEMORY_TYPE_STRINGS[descriptor->type]);
+    }
 
     return;
 }
