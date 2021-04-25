@@ -139,7 +139,7 @@ int memcmp(const void *aptr, const void *bptr, size_t n)
 
 typedef struct
 {
-    Framebuffer *framebuffer;
+    FrameBuffer *framebuffer;
     PSF1_FONT *psf1_font;
     EFI_MEMORY_DESCRIPTOR *mMap;
     UINTN mMapSize;

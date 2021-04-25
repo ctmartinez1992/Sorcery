@@ -9,6 +9,6 @@ struct EFI_MEMORY_DESCRIPTOR
     void *virtAddr;
     uint64_t numPages;
     uint64_t attrs;
-}
+};
 
 extern const char *EFI_MEMORY_TYPE_STRINGS[];
