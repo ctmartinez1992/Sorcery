@@ -1,1 +1,5 @@
 *.flp
+*.fd
+*.img
+*.elf
+*.o
